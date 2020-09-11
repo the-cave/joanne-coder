@@ -48,19 +48,27 @@ void joanne_coder__push_command(const JoanneCoder_Config *config,
 
 static void accept(const JoanneCoder_Config *config, uint8_t slot,
                    uint32_t access_code, uint8_t command) {
+  // skip rolling collision
   if (access_code == JOANNE_CODER__UNINITIALIZED)
     access_code++;
   config->tracking_state[slot] = access_code;
+  // update tracker
   if (config->tracking_changed)
     config->tracking_changed(config->tracking_state, slot);
+  // process command
   if (config->command_received)
     config->command_received(command);
 }
 
 void joanne_coder__sync(const JoanneCoder_Config *config, uint8_t slot,
                         uint32_t access_code) {
+  // slot overflow
+  if (config->slot_count <= slot)
+    return;
+  // skip rolling collision
   if (access_code == JOANNE_CODER__UNINITIALIZED)
     access_code++;
+  // update tracker
   config->tracking_state[slot] = access_code;
   if (config->tracking_changed)
     config->tracking_changed(config->tracking_state, slot);
