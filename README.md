@@ -34,11 +34,13 @@ However, since the rolling counter used is 32-bit, a 32-bit processor like [Arm 
 See [the test](./test/main.c) for an example.  
 
 There are only 3 simple APIs.
-* joanne_coder__init
-* joanne_coder__push_command
-* joanne_coder__sync
+* joanne_coder__init(&config, &state, &tracking_state);
+* joanne_coder__push_command(&config, &state, slot, access_code, command);
+* joanne_coder__sync(&config, &state, slot, access_code);
 
-Most of the detail can be obtained from [the test](./test/main.c).
+Autoinit mode is possible; simply supply `NULL` pointer as a `tracking_state` to the init function.
+
+Most of other usage details can be obtained from [the test](./test/main.c).
 
 ## Prerequisites
 
