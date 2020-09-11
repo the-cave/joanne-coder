@@ -1,0 +1,4 @@
+[submodule "utilities/builder"]
+	path = utilities/builder
+	url = git@github.com:midnight-wonderer/consuming-tester.git
+	branch = master
