@@ -17,8 +17,8 @@ void joanne_coder__init(const JoanneCoder_Config *config,
     config->tracking_state[i] = tracking_state[i];
 }
 
-static void accept(const JoanneCoder_Config *config, uint8_t slot,
-                   uint32_t access_code, uint8_t command);
+static void accept(const JoanneCoder_Config *config, JoanneCoder_State *state,
+                   uint8_t slot, uint32_t access_code, uint8_t command);
 
 void joanne_coder__push_command(const JoanneCoder_Config *config,
                                 JoanneCoder_State *state, uint8_t slot,
@@ -29,7 +29,7 @@ void joanne_coder__push_command(const JoanneCoder_Config *config,
   uint32_t current_tracking = config->tracking_state[slot];
   // auto init
   if ((state->auto_init) && (current_tracking == JOANNE_CODER__UNINITIALIZED)) {
-    accept(config, slot, access_code, command);
+    accept(config, state, slot, access_code, command);
     return;
   }
   uint32_t upper_bound = current_tracking + JOANNE_CODER__SYNC_MARGIN;
@@ -37,19 +37,19 @@ void joanne_coder__push_command(const JoanneCoder_Config *config,
   if (upper_bound < current_tracking) {
     if (!((current_tracking < access_code) || (access_code <= upper_bound)))
       return;
-    accept(config, slot, access_code, command);
+    accept(config, state, slot, access_code, command);
     return;
   }
   // normal sequence
   if (!((current_tracking < access_code) && (access_code <= upper_bound)))
     return;
-  accept(config, slot, access_code, command);
+  accept(config, state, slot, access_code, command);
 }
 
-static void accept(const JoanneCoder_Config *config, uint8_t slot,
-                   uint32_t access_code, uint8_t command) {
+static void accept(const JoanneCoder_Config *config, JoanneCoder_State *state,
+                   uint8_t slot, uint32_t access_code, uint8_t command) {
   // skip rolling collision
-  if (access_code == JOANNE_CODER__UNINITIALIZED)
+  if ((state->auto_init) && (access_code == JOANNE_CODER__UNINITIALIZED))
     access_code++;
   config->tracking_state[slot] = access_code;
   // update tracker
@@ -60,13 +60,14 @@ static void accept(const JoanneCoder_Config *config, uint8_t slot,
     config->command_received(command);
 }
 
-void joanne_coder__sync(const JoanneCoder_Config *config, uint8_t slot,
+void joanne_coder__sync(const JoanneCoder_Config *config,
+                        JoanneCoder_State *state, uint8_t slot,
                         uint32_t access_code) {
   // slot overflow
   if (config->slot_count <= slot)
     return;
   // skip rolling collision
-  if (access_code == JOANNE_CODER__UNINITIALIZED)
+  if ((state->auto_init) && (access_code == JOANNE_CODER__UNINITIALIZED))
     access_code++;
   // update tracker
   config->tracking_state[slot] = access_code;

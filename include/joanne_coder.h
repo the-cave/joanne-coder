@@ -30,7 +30,8 @@ void joanne_coder__push_command(const JoanneCoder_Config *config,
                                 JoanneCoder_State *state, uint8_t slot,
                                 uint32_t access_code, uint8_t command);
 
-void joanne_coder__sync(const JoanneCoder_Config *config, uint8_t slot,
+void joanne_coder__sync(const JoanneCoder_Config *config,
+                        JoanneCoder_State *state, uint8_t slot,
                         uint32_t access_code);
 
 #endif
